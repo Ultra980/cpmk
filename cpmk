@@ -1,1 +1,56 @@
-/usr/bin/cpmk
+#!/bin/bash
+
+DEBUG=false
+
+if [ $DEBUG == true ]
+then
+	printf $@
+fi
+
+show_help() {
+	printf "/usr/bin/cpmk [program name] [language]\nSupported languages:\n-c\n-cpp/cpp\n"
+	exit
+}
+if [ $# -lt 2 ]
+then
+	show_help
+fi
+
+case $2 in
+c)
+	COMPILER=gcc
+	;;
+cpp | c++)
+	COMPILER=g++
+	;;
+*)
+	show_help
+	;;
+esac
+
+LANG=$2
+PBNAME=$1
+
+printf \
+"COMPILER = %s
+LANG = %s
+FLAGS = -Wall -O2
+FNAME = main
+PBNAME = %s
+build:
+	@\$(COMPILER) \$(FLAGS) -o \$(FNAME) \$(FNAME).\$(LANG)
+run: build
+	@./\$(FNAME)
+show: run
+	@cat \$(PBNAME).out
+mkinput:
+	@touch \$(PBNAME).in
+time:
+	@time ./\$(FNAME)
+" $COMPILER $LANG $PBNAME > ./Makefile
+exit
+
+
+
+	
+
